@@ -1,4 +1,4 @@
-# Student agent: Add your own agent here
+# Second agent: Add your own agent here
 from agents.agent import Agent
 from store import register_agent
 import sys
@@ -7,16 +7,16 @@ from copy import deepcopy
 import time
 from helpers import random_move, count_capture, execute_move, check_endgame, get_valid_moves
 
-@register_agent("student_agent")
-class StudentAgent(Agent):
+@register_agent("second_agent")
+class SecondAgent(Agent):
   """
   A class for your implementation. Feel free to use this class to
   add any helper functionalities needed for your agent.
   """
 
   def __init__(self):
-    super(StudentAgent, self).__init__()
-    self.name = "StudentAgent"
+    super(SecondAgent, self).__init__()
+    self.name = "SecondAgent"
 
   def step(self, chess_board, player, opponent):
     """
@@ -43,7 +43,71 @@ class StudentAgent(Agent):
 
     print("My AI's turn took ", time_taken, "seconds.")
 
+    # Get valid moves
+    valid_moves = get_valid_moves(chess_board, player)
+
+    # If no valid moves, return None
+    if not valid_moves:
+        return None
+
+        # Use Minimax to find the best move
+    best_move = None
+    best_score = -float('inf')
+    depth = 3  # Adjust the depth as needed
+    for move in valid_moves:
+        new_board = np.copy(chess_board)
+        execute_move(new_board, move, player)
+        score = self.minimax(new_board, depth - 1, -float('inf'), float('inf'), False)
+        if score > best_score:
+            best_score = score
+            best_move = move
+
+    return best_move
+def minimax(self, board, depth, alpha, beta, is_maximizing_player):
+    """
+    Minimax search algorithm with alpha-beta pruning.
+
+    Args:
+        board: The current board state.
+        depth: The current depth of the search.
+        alpha: The alpha value for pruning
+        beta: The beta value for pruning.
+        is_maximizing_player: Whether the current player is maximizing or minimizing.
+
+    Returns:
+    The score of the best move.
+    """
+
+    if depth == 0 or check_endgame(board):
+        return self.evaluate_board(board)
+
+    if is_maximizing_player:
+         best_value = -float('inf')
+        for move in get_valid_moves(board, self.player):
+          new_board = np.copy(board)
+          execute_move(new_board, move, self.player)
+          value = self.minimax(new_board, depth - 1, alpha, beta, False)
+          best_value = max(best_value, value)
+          alpha = max(alpha, value)
+          if beta <= alpha:
+              break
+        return best_value
+    else:
+        best_value = float('inf')
+        for move in get_valid_moves(board, self.opponent):
+             new_board = np.copy(board)
+            execute_move(new_board, move, self.opponent)
+            value = self.minimax(new_board, depth - 1, alpha, beta, True)
+            best_value = min(best_value, value)
+            beta = min(beta, value)
+            if beta <= alpha:
+              break
+        return best_value
+
+ def evaluate_board(self, board):
+        player_score = np.sum(board == self.player)
+        opponent_score = np.sum(board == self.opponent)
+        return player_score - opponent_score
     # Dummy return (you should replace this with your actual logic)
     # Returning a random valid move as an example
-    return random_move(chess_board,player)
 
